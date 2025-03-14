@@ -528,6 +528,8 @@ bool get_opening_move(struct move *move) {
 	return false;
 }
 
+int g_depth;
+
 void start_search(void) {
 	g_cancel = false;
 	g_discard = false;
@@ -539,28 +541,29 @@ void start_search(void) {
 		return;
 	}
 
-	int depth = MIN_DEPTH;
+	g_depth = MIN_DEPTH;
 
 	t_search_res last_res = search_res(0, NO_MOVE, NO_MOVE);
 
 	do {
-		t_search_res res = search_at_depth(depth);
+		t_search_res res = search_at_depth(g_depth);
 		if (g_cancel) {
 			break;
 		}
 		last_res = res;
 
-		uci_printf("info depth %d score cp %lld", depth, last_res.score);
+		uci_printf("info depth %d score cp %lld", g_depth, last_res.score);
 
-		depth++;
+		g_depth++;
 
-		if (g_state == THINKING_ON_OUR_TIME && depth > MIN_DEPTH && depth > MAX_DEPTH) {
+		if (g_state == THINKING_ON_OUR_TIME && g_depth > MIN_DEPTH && g_depth > MAX_DEPTH) {
 			DEBUGF("Thinking for too long, playing\n", 1);
 			play_found_move();
 		}
 	} while (!g_cancel);
 
-	ASSERT(depth > MIN_DEPTH || g_discard);
+end:
+	ASSERT(g_depth > MIN_DEPTH || g_discard);
 	ASSERT(!move_eq(last_res.move, NO_MOVE));
 	DEBUGF("Search stopped\n", 1);
 
@@ -572,7 +575,7 @@ void start_search(void) {
 		start_search();
 	// Else, play the move and start pondering again
 	} else {
-		ASSERT(depth >= MIN_DEPTH);  // We should have searched at least at the min depth
+		ASSERT(g_depth >= MIN_DEPTH);  // We should have searched at least at the min depth
 
 		char buffer[6];
 
@@ -703,6 +706,10 @@ void handle_go(char *token, char *store) {
 }
 
 void update_state(void) {
+	if (g_state == THINKING_ON_THEIR_TIME && g_depth > 6) {
+		restart_search();
+	}
+
 	enqueue_commands();
 
 	char *line = NULL;
