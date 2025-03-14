@@ -439,7 +439,8 @@ t_search_res negamax(int depth, t_score alpha, t_score beta) {
 
 	if (moves_count == 0) {
 		if (is_in_check(&g_pos)) {
-			return search_res(-SCORE_MAX, NO_MOVE, NO_MOVE);
+			printf("CHECKMATE\n");
+			return search_res(SCORE_MAX, NO_MOVE, NO_MOVE);
 		} else {
 			return search_res(0, NO_MOVE, NO_MOVE);
 		}
