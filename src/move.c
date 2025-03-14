@@ -57,13 +57,25 @@ void do_move(struct position *pos, struct move move) {
 	int en_passant_square = pos->en_passant_square;
 
 	/* move the piece, promoting it if necessary.                            */
-	pos->board[move.from_square] = NO_PIECE;
-
 	if (move.promotion_type != NO_TYPE) {
 		pos->board[move.to_square] = PIECE(color, move.promotion_type);
 	} else {
-		pos->board[move.to_square] = piece;
+		if (TYPE(pos->board[move.from_square]) == KING) {
+			// kingside castle
+			if (FILE(move.from_square) == FILE_E && FILE(move.to_square) == FILE_H) {
+				pos->board[SQUARE(FILE_G, to_rank)] = PIECE(color, KING);
+			// queenside castle
+			} else if (FILE(move.from_square) == FILE_E && FILE(move.to_square) == FILE_A) {
+				pos->board[SQUARE(FILE_C, to_rank)] = PIECE(color, KING);
+			} else {
+				pos->board[move.to_square] = piece;
+			}
+		} else {
+			pos->board[move.to_square] = piece;
+		}
 	}
+
+	pos->board[move.from_square] = NO_PIECE;
 
 	/* reset the en passant square.                                          */
 	pos->en_passant_square = NO_SQUARE;
@@ -103,10 +115,10 @@ void do_move(struct position *pos, struct move move) {
 		pos->castling_rights[color] = 0;
 
 		/* also move the rook for castling moves.                            */
-		if (from_file == FILE_E && to_file == FILE_G) {
+		if (from_file == FILE_E && (to_file == FILE_H || to_file == FILE_G)) {
 			pos->board[SQUARE(FILE_H, to_rank)] = NO_PIECE;
 			pos->board[SQUARE(FILE_F, to_rank)] = PIECE(color, ROOK);
-		} else if (from_file == FILE_E && to_file == FILE_C) {
+		} else if (from_file == FILE_E && (to_file == FILE_A || to_file == FILE_B)) {
 			pos->board[SQUARE(FILE_A, to_rank)] = NO_PIECE;
 			pos->board[SQUARE(FILE_D, to_rank)] = PIECE(color, ROOK);
 		}

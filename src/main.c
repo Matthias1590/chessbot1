@@ -24,7 +24,7 @@
 
 #define DEBUG false
 #define MIN_DEPTH 2
-int MAX_DEPTH = 5;
+int MAX_DEPTH = 6;
 
 /// DEBUGGING
 
@@ -510,7 +510,7 @@ void load_openings(void) {
 	FILE *file = fopen("out.bin", "rb");
 	ASSERT(file != NULL);
 
-	size_t count = fread(opening_book, sizeof(t_opening), 94272, file);
+	fread(opening_book, sizeof(t_opening), 94272, file);
 
 	fclose(file);
 }
@@ -562,7 +562,6 @@ void start_search(void) {
 		}
 	} while (!g_cancel);
 
-end:
 	ASSERT(g_depth > MIN_DEPTH || g_discard);
 	ASSERT(!move_eq(last_res.move, NO_MOVE));
 	DEBUGF("Search stopped\n", 1);
