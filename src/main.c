@@ -22,7 +22,7 @@
 
 /// CONFIGURATION
 
-#define DEBUG true
+#define DEBUG false
 #define MIN_DEPTH 2
 int MAX_DEPTH = 5;
 
