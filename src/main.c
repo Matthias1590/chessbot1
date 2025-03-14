@@ -706,7 +706,7 @@ void handle_go(char *token, char *store) {
 }
 
 void update_state(void) {
-	if (g_state == THINKING_ON_THEIR_TIME && g_depth > 6) {
+	if (g_state == THINKING_ON_THEIR_TIME && g_depth > 30) {
 		restart_search();
 	}
 
