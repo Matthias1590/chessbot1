@@ -285,13 +285,16 @@ bool is_capture(struct position *pos, struct move move) {
 }
 
 bool is_in_check(struct position *pos) {
+	pos->side_to_move = 1 - pos->side_to_move;
 	struct move moves[MAX_MOVES];
 	size_t moves_count = generate_pseudo_legal_moves(pos, moves);
 	for (size_t i = 0; i < moves_count; i++) {
 		if (TYPE(pos->board[moves[i].to_square]) == KING) {
+			pos->side_to_move = 1 - pos->side_to_move;
 			return true;
 		}
 	}
+	pos->side_to_move = 1 - pos->side_to_move;
 	return false;
 }
 
@@ -439,8 +442,7 @@ t_search_res negamax(int depth, t_score alpha, t_score beta) {
 
 	if (moves_count == 0) {
 		if (is_in_check(&g_pos)) {
-			printf("CHECKMATE\n");
-			return search_res(SCORE_MAX, NO_MOVE, NO_MOVE);
+			return search_res(SCORE_MIN, NO_MOVE, NO_MOVE);
 		} else {
 			return search_res(0, NO_MOVE, NO_MOVE);
 		}
